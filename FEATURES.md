@@ -129,6 +129,11 @@ A static photo timeline/gallery website hosted on GitHub Pages to showcase famil
   - Local development with HTTP server
   - CORS-compliant setup
 
+- ✅ **Live Deployment**
+  - **Live Site**: [https://vaagul.github.io/LifeLine/](https://vaagul.github.io/LifeLine/)
+  - Automatically deploys from master branch
+  - Fast CDN delivery worldwide
+
 ## 📊 **Sample Data Structure**
 
 The project includes 8 sample family moments spanning 2019-2024 with multiple images per moment:
