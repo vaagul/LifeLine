@@ -15,6 +15,10 @@
             <h1 class="header__title">Our Family Timeline</h1>
             <p class="header__subtitle">Capturing life's precious moments</p>
         </div>
+        <!-- Progress Indicator -->
+        <div class="scroll-progress">
+            <div class="scroll-progress__bar"></div>
+        </div>
     </header>
 
     <main class="main">
@@ -29,6 +33,14 @@
                 </div>
                 
                 <div class="filters__group">
+                    <label for="sort-filter">Sort by Time:</label>
+                    <select id="sort-filter" class="filter-select">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                    </select>
+                </div>
+                
+                <div class="filters__group">
                     <label for="tag-filter">Filter by Tags:</label>
                     <div class="tag-filter-container">
                         <div id="tag-filter" class="tag-filter">
@@ -37,6 +49,11 @@
                         <button id="clear-tags" class="clear-tags-btn" style="display: none;">Clear All Tags</button>
                     </div>
                 </div>
+            </div>
+
+            <!-- Results Summary -->
+            <div id="results-summary" class="results-summary">
+                <p>Showing <span id="moment-count">0</span> moments</p>
             </div>
 
             <!-- Loading State -->
@@ -88,6 +105,17 @@
             <div id="thumbnail-strip" class="lightbox__thumbnails">
                 <!-- Thumbnails will be populated dynamically -->
             </div>
+        </div>
+    </div>
+
+    <!-- Google Photos Style Scroll Navigator -->
+    <div id="scroll-navigator" class="scroll-navigator">
+        <div class="scroll-navigator__track">
+            <div class="scroll-navigator__thumb"></div>
+            <div class="scroll-navigator__markers"></div>
+        </div>
+        <div class="scroll-navigator__label">
+            <span id="current-period">2024</span>
         </div>
     </div>
 

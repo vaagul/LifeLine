@@ -8,10 +8,12 @@ class FamilyTimeline {
         this.filteredMoments = [];
         this.selectedTags = new Set();
         this.selectedYear = 'all';
+        this.sortOrder = 'newest'; // Default to newest first
         this.timelineContainer = document.getElementById('timeline');
         this.loadingElement = document.getElementById('loading');
         this.noResultsElement = document.getElementById('no-results');
         this.yearFilter = document.getElementById('year-filter');
+        this.sortFilter = document.getElementById('sort-filter');
         this.tagFilter = document.getElementById('tag-filter');
         this.lightbox = document.getElementById('lightbox');
         
@@ -19,6 +21,18 @@ class FamilyTimeline {
         this.currentGallery = [];
         this.currentImageIndex = 0;
         this.currentMoment = null;
+        
+        // Virtual scrolling state
+        this.visibleEntries = new Set();
+        this.intersectionObserver = null;
+        
+        // Scroll navigator state
+        this.scrollNavigator = document.getElementById('scroll-navigator');
+        this.scrollNavigatorThumb = document.querySelector('.scroll-navigator__thumb');
+        this.scrollNavigatorMarkers = document.querySelector('.scroll-navigator__markers');
+        this.currentPeriodLabel = document.getElementById('current-period');
+        this.periodSections = [];
+        this.currentVisiblePeriod = null;
         
         this.init();
     }
@@ -28,6 +42,9 @@ class FamilyTimeline {
             await this.loadMoments();
             this.setupFilters();
             this.setupEventListeners();
+            this.setupIntersectionObserver();
+            this.setupScrollProgress();
+            this.setupScrollNavigator();
             this.renderTimeline();
             this.hideLoading();
         } catch (error) {
@@ -43,9 +60,6 @@ class FamilyTimeline {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             this.moments = await response.json();
-            
-            // Sort moments by date (newest first)
-            this.moments.sort((a, b) => new Date(b.date) - new Date(a.date));
             
             // Initialize filtered moments
             this.filteredMoments = [...this.moments];
@@ -101,6 +115,12 @@ class FamilyTimeline {
             this.applyFilters();
         });
 
+        // Sort filter change
+        this.sortFilter.addEventListener('change', (e) => {
+            this.sortOrder = e.target.value;
+            this.applyFilters();
+        });
+
         // Clear tags button
         document.getElementById('clear-tags').addEventListener('click', () => {
             this.clearAllTags();
@@ -134,6 +154,62 @@ class FamilyTimeline {
                 this.previousImage();
             } else if (e.key === 'ArrowRight') {
                 this.nextImage();
+            }
+        });
+
+        // Scroll navigator click handler
+        this.scrollNavigator?.addEventListener('click', (e) => {
+            console.log('Navigator clicked:', e.target, e.target.classList);
+            
+            if (e.target.classList.contains('scroll-navigator__marker')) {
+                const periodLabel = e.target.dataset.period;
+                console.log('Marker clicked, period:', periodLabel);
+                this.scrollToPeriod(periodLabel);
+            } else if (e.target.classList.contains('scroll-navigator__markers')) {
+                // Handle clicks on the markers container - find the closest marker
+                const rect = e.target.getBoundingClientRect();
+                const clickY = e.clientY - rect.top;
+                const percentage = clickY / rect.height;
+                const targetPeriodIndex = Math.round(percentage * (this.periodSections.length - 1));
+                
+                console.log('Markers container clicked, percentage:', percentage, 'targetIndex:', targetPeriodIndex);
+                
+                if (this.periodSections[targetPeriodIndex]) {
+                    const periodLabel = this.periodSections[targetPeriodIndex].label;
+                    console.log('Markers container clicked, jumping to period:', periodLabel);
+                    this.scrollToPeriod(periodLabel);
+                }
+            } else if (e.target.classList.contains('scroll-navigator__track')) {
+                // Handle clicks on the track itself
+                const rect = e.target.getBoundingClientRect();
+                const clickY = e.clientY - rect.top;
+                const percentage = clickY / rect.height;
+                const targetPeriodIndex = Math.round(percentage * (this.periodSections.length - 1));
+                
+                console.log('Track clicked, percentage:', percentage, 'targetIndex:', targetPeriodIndex);
+                
+                if (this.periodSections[targetPeriodIndex]) {
+                    const periodLabel = this.periodSections[targetPeriodIndex].label;
+                    console.log('Track clicked, jumping to period:', periodLabel);
+                    this.scrollToPeriod(periodLabel);
+                }
+            } else if (e.target.classList.contains('scroll-navigator') || e.target.id === 'scroll-navigator') {
+                // Handle clicks anywhere on the navigator
+                const markersContainer = this.scrollNavigatorMarkers;
+                if (markersContainer) {
+                    const rect = markersContainer.getBoundingClientRect();
+                    const clickY = e.clientY - rect.top;
+                    const percentage = Math.max(0, Math.min(1, clickY / rect.height));
+                    const targetPeriodIndex = Math.round(percentage * (this.periodSections.length - 1));
+                    
+                    console.log('Navigator clicked, percentage:', percentage, 'targetIndex:', targetPeriodIndex);
+                    
+                    if (this.periodSections[targetPeriodIndex]) {
+                        const periodLabel = this.periodSections[targetPeriodIndex].label;
+                        console.log('Navigator clicked, jumping to period:', periodLabel);
+                        this.scrollToPeriod(periodLabel);
+                    }
+                }
             }
         });
     }
@@ -203,11 +279,300 @@ class FamilyTimeline {
             return true;
         });
 
+        // Update results summary
+        this.updateResultsSummary(this.filteredMoments.length);
+
         this.renderTimeline();
     }
 
+    setupIntersectionObserver() {
+        const options = {
+            root: null,
+            rootMargin: '50px',
+            threshold: 0.1
+        };
+
+        this.intersectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('observed');
+                    entry.target.style.setProperty('--entry-index', 
+                        Array.from(this.timelineContainer.children).indexOf(entry.target));
+                } else {
+                    entry.target.classList.remove('observed');
+                }
+            });
+        }, options);
+    }
+
+    setupScrollProgress() {
+        const progressBar = document.querySelector('.scroll-progress__bar');
+        if (!progressBar) return;
+
+        const updateProgress = () => {
+            const scrollTop = window.pageYOffset;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = (scrollTop / docHeight) * 100;
+            progressBar.style.width = Math.min(scrollPercent, 100) + '%';
+        };
+
+        window.addEventListener('scroll', updateProgress, { passive: true });
+        updateProgress(); // Initialize
+    }
+
+    setupScrollNavigator() {
+        if (!this.scrollNavigator) return;
+
+        const updateScrollNavigator = () => {
+            this.updateScrollNavigatorPosition();
+            this.updateCurrentPeriod();
+        };
+
+        window.addEventListener('scroll', updateScrollNavigator, { passive: true });
+        
+        // Show/hide navigator based on content
+        const showNavigator = () => {
+            if (this.filteredMoments.length > 3) {
+                this.scrollNavigator.classList.add('visible');
+            } else {
+                this.scrollNavigator.classList.remove('visible');
+            }
+        };
+
+        // Initial setup
+        setTimeout(() => {
+            this.buildPeriodSections();
+            this.updateScrollNavigatorMarkers();
+            showNavigator();
+            updateScrollNavigator();
+        }, 100);
+    }
+
+    buildPeriodSections() {
+        if (!this.filteredMoments.length) return;
+
+        console.log('Building period sections for', this.filteredMoments.length, 'moments');
+
+        // First, sort the filtered moments to match the current sort order
+        const sortedMoments = [...this.filteredMoments];
+        if (this.sortOrder === 'newest') {
+            sortedMoments.sort((a, b) => new Date(b.date) - new Date(a.date));
+        } else {
+            sortedMoments.sort((a, b) => new Date(a.date) - new Date(b.date));
+        }
+
+        // Group moments by year and month
+        const periods = {};
+        sortedMoments.forEach((moment, index) => {
+            const date = new Date(moment.date);
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            const periodKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+            
+            if (!periods[periodKey]) {
+                periods[periodKey] = {
+                    year,
+                    month,
+                    label: date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' }),
+                    moments: [],
+                    startIndex: index,
+                    endIndex: index
+                };
+            }
+            periods[periodKey].moments.push(moment);
+            periods[periodKey].endIndex = index;
+        });
+
+        this.periodSections = Object.values(periods).sort((a, b) => {
+            if (this.sortOrder === 'newest') {
+                return b.year - a.year || b.month - a.month;
+            } else {
+                return a.year - b.year || a.month - b.month;
+            }
+        });
+
+        console.log('Period sections created:', this.periodSections.map(p => p.label));
+    }
+
+    updateScrollNavigatorMarkers() {
+        if (!this.scrollNavigatorMarkers || !this.periodSections.length) return;
+
+        console.log('Updating scroll navigator markers for periods:', this.periodSections.map(p => p.label));
+
+        this.scrollNavigatorMarkers.innerHTML = '';
+        
+        this.periodSections.forEach((period, index) => {
+            const marker = document.createElement('div');
+            marker.className = 'scroll-navigator__marker';
+            marker.dataset.period = period.label;
+            marker.title = period.label; // Add tooltip
+            
+            // Position marker based on the period's position in the timeline
+            const position = this.periodSections.length === 1 ? 50 : (index / (this.periodSections.length - 1)) * 100;
+            marker.style.top = `${Math.min(position, 95)}%`;
+            
+            console.log(`Created marker for ${period.label} at position ${position}%`);
+            
+            this.scrollNavigatorMarkers.appendChild(marker);
+        });
+    }
+
+    updateScrollNavigatorPosition() {
+        if (!this.scrollNavigatorThumb) return;
+
+        const scrollTop = window.pageYOffset;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPercent = Math.min((scrollTop / docHeight) * 100, 100);
+        
+        const trackHeight = 300; // Height of the track
+        const thumbPosition = (scrollPercent / 100) * (trackHeight - 20); // 20 is thumb height
+        
+        this.scrollNavigatorThumb.style.top = `${thumbPosition}px`;
+    }
+
+    updateCurrentPeriod() {
+        if (!this.periodSections.length || !this.currentPeriodLabel) return;
+
+        const timelineEntries = this.timelineContainer.querySelectorAll('.timeline-entry');
+        if (!timelineEntries.length) return;
+
+        const viewportTop = window.pageYOffset;
+        const viewportCenter = viewportTop + (window.innerHeight / 2);
+
+        let currentPeriod = null;
+        let closestDistance = Infinity;
+
+        // Find the entry closest to the center of the viewport
+        timelineEntries.forEach((entry, index) => {
+            const entryTop = entry.offsetTop;
+            const entryCenter = entryTop + (entry.offsetHeight / 2);
+            const distance = Math.abs(viewportCenter - entryCenter);
+
+            if (distance < closestDistance && index < this.filteredMoments.length) {
+                closestDistance = distance;
+                const moment = this.filteredMoments[index];
+                const date = new Date(moment.date);
+                currentPeriod = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+            }
+        });
+
+        if (currentPeriod && currentPeriod !== this.currentVisiblePeriod) {
+            this.currentVisiblePeriod = currentPeriod;
+            this.currentPeriodLabel.textContent = currentPeriod;
+            
+            // Show label temporarily
+            const label = document.querySelector('.scroll-navigator__label');
+            if (label) {
+                label.classList.add('visible');
+                clearTimeout(this.labelTimeout);
+                this.labelTimeout = setTimeout(() => {
+                    label.classList.remove('visible');
+                }, 2000);
+            }
+
+            // Update active marker
+            const markers = this.scrollNavigatorMarkers.querySelectorAll('.scroll-navigator__marker');
+            markers.forEach(marker => {
+                marker.classList.toggle('active', marker.dataset.period === currentPeriod);
+            });
+        }
+    }
+
+    scrollToPeriod(periodLabel) {
+        console.log('Attempting to scroll to period:', periodLabel);
+        console.log('Available period sections:', this.periodSections?.map(p => p.label) || 'none');
+        console.log('Current sort order:', this.sortOrder);
+        
+        const timelineEntries = this.timelineContainer.querySelectorAll('.timeline-entry');
+        if (!timelineEntries.length) {
+            console.log('No timeline entries found');
+            return;
+        }
+
+        console.log('Timeline entries found:', timelineEntries.length);
+        console.log('Filtered moments count:', this.filteredMoments.length);
+
+        // Get the sorted moments to match the timeline order
+        const sortedMoments = [...this.filteredMoments];
+        if (this.sortOrder === 'newest') {
+            sortedMoments.sort((a, b) => new Date(b.date) - new Date(a.date));
+        } else {
+            sortedMoments.sort((a, b) => new Date(a.date) - new Date(b.date));
+        }
+
+        console.log('Sorted moments:', sortedMoments.map(m => `${m.title} (${m.date})`));
+
+        // Find the first entry that matches the period
+        let foundMatch = false;
+        for (let i = 0; i < sortedMoments.length && i < timelineEntries.length; i++) {
+            const moment = sortedMoments[i];
+            const date = new Date(moment.date);
+            const momentPeriod = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+            
+            console.log(`Checking moment ${i}: ${moment.title}, period: ${momentPeriod}, target: ${periodLabel}`);
+            
+            if (momentPeriod === periodLabel) {
+                const entry = timelineEntries[i];
+                const offsetTop = entry.offsetTop - 150; // Account for sticky header and some padding
+                
+                console.log(`Found matching period! Scrolling to entry ${i}, offset: ${offsetTop}`);
+                
+                window.scrollTo({
+                    top: Math.max(0, offsetTop),
+                    behavior: 'smooth'
+                });
+                
+                // Show the period label temporarily
+                const label = document.querySelector('.scroll-navigator__label');
+                if (label) {
+                    this.currentPeriodLabel.textContent = periodLabel;
+                    label.classList.add('visible');
+                    clearTimeout(this.labelTimeout);
+                    this.labelTimeout = setTimeout(() => {
+                        label.classList.remove('visible');
+                    }, 3000);
+                }
+                foundMatch = true;
+                break;
+            }
+        }
+        
+        if (!foundMatch) {
+            console.log('No matching period found for:', periodLabel);
+            console.log('Available periods in moments:', 
+                sortedMoments.map(m => new Date(m.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long' }))
+            );
+        }
+    }
+
+    observeTimelineEntries() {
+        if (!this.intersectionObserver) return;
+        
+        const entries = this.timelineContainer.querySelectorAll('.timeline-entry');
+        entries.forEach(entry => {
+            this.intersectionObserver.observe(entry);
+        });
+    }
+
+    unobserveTimelineEntries() {
+        if (!this.intersectionObserver) return;
+        
+        const entries = this.timelineContainer.querySelectorAll('.timeline-entry');
+        entries.forEach(entry => {
+            this.intersectionObserver.unobserve(entry);
+        });
+    }
+
+    updateResultsSummary(count) {
+        const momentCountElement = document.getElementById('moment-count');
+        if (momentCountElement) {
+            momentCountElement.textContent = count;
+        }
+    }
+
     renderTimeline() {
-        // Clear existing timeline
+        // Clear existing timeline and unobserve entries
+        this.unobserveTimelineEntries();
         this.timelineContainer.innerHTML = '';
 
         if (this.filteredMoments.length === 0) {
@@ -217,21 +582,48 @@ class FamilyTimeline {
 
         this.hideNoResults();
 
-        // Create timeline entries
-        this.filteredMoments.forEach((moment, index) => {
+        // Sort moments before rendering
+        const sortedMoments = [...this.filteredMoments];
+        if (this.sortOrder === 'newest') {
+            sortedMoments.sort((a, b) => new Date(b.date) - new Date(a.date));
+        } else {
+            sortedMoments.sort((a, b) => new Date(a.date) - new Date(b.date));
+        }
+
+        // Update results summary
+        this.updateResultsSummary(sortedMoments.length);
+
+        // Create timeline entries with staggered animation
+        sortedMoments.forEach((moment, index) => {
             const timelineEntry = this.createTimelineEntry(moment, index);
+            
+            // Add year data attribute for floating labels
+            const year = new Date(moment.date).getFullYear();
+            timelineEntry.setAttribute('data-year', year);
+            
+            // Set CSS custom property for animation delay
+            timelineEntry.style.setProperty('--entry-index', index);
+            
             this.timelineContainer.appendChild(timelineEntry);
         });
 
-        // Trigger animation for new entries
+        // Observe new entries for intersection animations
         requestAnimationFrame(() => {
-            const entries = this.timelineContainer.querySelectorAll('.timeline-entry');
-            entries.forEach((entry, index) => {
-                setTimeout(() => {
-                    entry.style.animationDelay = `${index * 0.1}s`;
-                }, index * 50);
-            });
+            this.observeTimelineEntries();
         });
+
+        // Update scroll navigator after timeline is rendered
+        setTimeout(() => {
+            this.buildPeriodSections();
+            this.updateScrollNavigatorMarkers();
+            
+            // Show/hide navigator based on content
+            if (this.filteredMoments.length > 3) {
+                this.scrollNavigator?.classList.add('visible');
+            } else {
+                this.scrollNavigator?.classList.remove('visible');
+            }
+        }, 100);
     }
 
     createTimelineEntry(moment, index) {
