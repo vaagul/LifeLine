@@ -43,8 +43,8 @@ python3 -m http.server 8000
    - Save settings
 
 2. **Access Your Site**:
-   - Visit: `https://yourusername.github.io/LifeLine/`
-   - Replace `yourusername` with your GitHub username
+   - Visit: `https://vaagul.github.io/LifeLine/`
+   - Your live Family Photo Timeline!
 
 3. **Custom Domain** (Optional):
    - Add `CNAME` file with your domain
@@ -104,7 +104,9 @@ For detailed technical implementation, see [FEATURES.md](FEATURES.md).
 
 ## 🚀 Live Demo
 
-Visit the live demo: [Your GitHub Pages URL]
+**🌐 View Live Site**: [https://vaagul.github.io/LifeLine/](https://vaagul.github.io/LifeLine/)
+
+*Note: It may take 5-10 minutes for initial deployment after enabling GitHub Pages*
 
 ## 📄 License
 
