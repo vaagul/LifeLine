@@ -1,0 +1,162 @@
+[
+  {
+    "title": "New Home Purchase",
+    "date": "2024-06-15",
+    "description": "Finally got the keys to our dream home! After months of searching, we found the perfect place for our family to grow.",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964832/cld-sample-4.jpg",
+        "caption": "Front view of our new home"
+      },
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964833/cld-sample-5.jpg",
+        "caption": "Living room with natural light"
+      },
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964832/cld-sample-2.jpg",
+        "caption": "Kitchen and dining area"
+      }
+    ],
+    "tags": ["home", "milestone", "family"]
+  },
+  {
+    "title": "Summer Beach Vacation",
+    "date": "2024-07-20",
+    "description": "A wonderful week at the beach with the whole family. The kids loved building sandcastles and playing in the waves.",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964833/cld-sample-5.jpg",
+        "caption": "Kids building sandcastles"
+      },
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964832/cld-sample-4.jpg",
+        "caption": "Family beach photo"
+      },
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964831/cld-sample.jpg",
+        "caption": "Sunset by the ocean"
+      },
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964832/cld-sample-3.jpg",
+        "caption": "Beach activities and games"
+      }
+    ],
+    "tags": ["vacation", "beach", "family", "summer"]
+  },
+  {
+    "title": "Wedding Anniversary",
+    "date": "2024-03-12",
+    "description": "Celebrating 10 years of marriage with a romantic dinner and looking back at our beautiful wedding memories.",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964832/cld-sample-2.jpg",
+        "caption": "Walking down the aisle"
+      },
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964831/cld-sample.jpg",
+        "caption": "First dance as married couple"
+      },
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964833/cld-sample-5.jpg",
+        "caption": "Wedding party celebration"
+      },
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964832/cld-sample-4.jpg",
+        "caption": "Anniversary dinner recreation"
+      },
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964832/cld-sample-3.jpg",
+        "caption": "Anniversary cake cutting"
+      }
+    ],
+    "tags": ["anniversary", "marriage", "romance", "milestone", "celebration"]
+  },
+  {
+    "title": "First Day of School",
+    "date": "2023-09-05",
+    "description": "Our little one's first day of kindergarten. So proud and excited to see them start this new chapter!",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964832/cld-sample-3.jpg",
+        "caption": "Ready for the first day"
+      },
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964832/cld-sample-4.jpg",
+        "caption": "At the school entrance"
+      }
+    ],
+    "tags": ["school", "milestone", "education", "kids"]
+  },
+  {
+    "title": "Birthday Celebration",
+    "date": "2023-05-14",
+    "description": "A surprise birthday party with friends and family. The joy and laughter made it absolutely perfect!",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964831/cld-sample.jpg",
+        "caption": "Birthday surprise moment"
+      },
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964832/cld-sample-2.jpg",
+        "caption": "Blowing out the candles"
+      },
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964833/cld-sample-5.jpg",
+        "caption": "Party games and fun"
+      }
+    ],
+    "tags": ["birthday", "celebration", "friends", "family"]
+  },
+  {
+    "title": "Graduation Day",
+    "date": "2022-12-15",
+    "description": "Finally graduated after years of hard work and dedication. The whole family was there to celebrate this achievement.",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964832/cld-sample-4.jpg",
+        "caption": "Graduation ceremony"
+      },
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964832/cld-sample-3.jpg",
+        "caption": "Family celebration photo"
+      }
+    ],
+    "tags": ["graduation", "education", "achievement", "family"]
+  },
+  {
+    "title": "First Pet Adoption",
+    "date": "2021-08-04",
+    "description": "Welcomed our furry friend into the family! Dog's first outing to the park was such a joy to watch.",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964832/cld-sample-4.jpg",
+        "caption": "Meeting our new family member"
+      },
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964831/cld-sample.jpg",
+        "caption": "First day at the park"
+      },
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964833/cld-sample-5.jpg",
+        "caption": "Playing fetch together"
+      }
+    ],
+    "tags": ["pets", "adoption", "dogs", "family"]
+  },
+  {
+    "title": "Home Renovation Begins",
+    "date": "2019-11-15",
+    "description": "The day we started the renovation of our new home. Demolition day was both exciting and terrifying!",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964832/cld-sample-4.jpg",
+        "caption": "Before renovation - original state"
+      },
+      {
+        "url": "https://res.cloudinary.com/dr48ytdy4/image/upload/v1753964832/cld-sample-2.jpg",
+        "caption": "Demolition in progress"
+      }
+    ],
+    "tags": ["home", "renovation", "diy", "improvement"]
+  }
+]

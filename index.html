@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Photo Timeline</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="header__title">Our Family Timeline</h1>
+            <p class="header__subtitle">Capturing life's precious moments</p>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <!-- Filters Section -->
+            <div class="filters">
+                <div class="filters__group">
+                    <label for="year-filter">Filter by Year:</label>
+                    <select id="year-filter" class="filter-select">
+                        <option value="all">All Years</option>
+                    </select>
+                </div>
+                
+                <div class="filters__group">
+                    <label for="tag-filter">Filter by Tags:</label>
+                    <div class="tag-filter-container">
+                        <div id="tag-filter" class="tag-filter">
+                            <!-- Tags will be populated dynamically -->
+                        </div>
+                        <button id="clear-tags" class="clear-tags-btn" style="display: none;">Clear All Tags</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading" class="loading">
+                <div class="loading__spinner"></div>
+                <p>Loading your memories...</p>
+            </div>
+
+            <!-- Timeline Container -->
+            <div id="timeline" class="timeline">
+                <!-- Timeline entries will be populated dynamically -->
+            </div>
+
+            <!-- No results message -->
+            <div id="no-results" class="no-results" style="display: none;">
+                <p>No moments found for the selected filters.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Lightbox Modal for Image Gallery -->
+    <div id="lightbox" class="lightbox">
+        <div class="lightbox__content">
+            <button class="lightbox__close">&times;</button>
+            
+            <!-- Gallery Navigation -->
+            <div class="lightbox__navigation">
+                <button class="lightbox__nav lightbox__prev" id="prev-btn">&larr;</button>
+                <button class="lightbox__nav lightbox__next" id="next-btn">&rarr;</button>
+            </div>
+            
+            <!-- Main Image Display -->
+            <div class="lightbox__image-container">
+                <img id="lightbox-image" class="lightbox__image" src="" alt="">
+                <div class="lightbox__image-counter">
+                    <span id="image-counter">1 / 3</span>
+                </div>
+            </div>
+            
+            <!-- Image Info -->
+            <div class="lightbox__info">
+                <h3 id="lightbox-title" class="lightbox__title"></h3>
+                <p id="lightbox-date" class="lightbox__date"></p>
+                <p id="lightbox-description" class="lightbox__description"></p>
+                <p id="lightbox-caption" class="lightbox__caption"></p>
+            </div>
+            
+            <!-- Thumbnail Strip for Multiple Images -->
+            <div id="thumbnail-strip" class="lightbox__thumbnails">
+                <!-- Thumbnails will be populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
